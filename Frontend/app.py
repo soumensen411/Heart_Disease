@@ -5,6 +5,7 @@ import joblib
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.preprocessing import StandardScaler
+import os
 
 # Page configuration
 st.set_page_config(
@@ -95,20 +96,56 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Load models and artifacts
+# Load models and artifacts - checks multiple paths for deployment compatibility
 @st.cache_resource
 def load_artifacts():
+    # List of possible paths to check (in order of priority)
+    possible_paths = [
+        '.',                                    # Current directory (local run)
+        os.path.dirname(os.path.abspath(__file__)),  # Script directory
+        '/app',                                 # Common Docker/Cloud path
+        '/mount/src',                           # Streamlit Cloud path
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'),  # Parent dir
+    ]
+
+    # Also check if files are in the same folder as the script
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    possible_paths.append(script_dir)
+
+    # Find the first path that contains all three files
+    found_path = None
+    for path in possible_paths:
+        if all(os.path.exists(os.path.join(path, f)) for f in ['KNN_HeartPKL.pkl', 'scaler.pkl', 'columns.pkl']):
+            found_path = path
+            break
+
+    # If not found, search recursively in script directory (up to 2 levels)
+    if found_path is None:
+        for root, dirs, files in os.walk(script_dir):
+            depth = root.replace(script_dir, '').count(os.sep)
+            if depth > 2:
+                continue
+            if all(f in files for f in ['KNN_HeartPKL.pkl', 'scaler.pkl', 'columns.pkl']):
+                found_path = root
+                break
+
+    if found_path is None:
+        st.error("❌ Model files not found!")
+        st.info("Searched in these locations:")
+        for path in possible_paths:
+            st.code(path)
+        st.info("Please ensure these files are in your project folder:")
+        st.code("KNN_HeartPKL.pkl, scaler.pkl, columns.pkl")
+        return None, None, None
+
     try:
-        model = joblib.load('KNN_HeartPKL.pkl')
-        scaler = joblib.load('scaler.pkl')
-        columns = joblib.load('columns.pkl')
+        model = joblib.load(os.path.join(found_path, 'KNN_HeartPKL.pkl'))
+        scaler = joblib.load(os.path.join(found_path, 'scaler.pkl'))
+        columns = joblib.load(os.path.join(found_path, 'columns.pkl'))
+        st.success(f"✅ Model loaded successfully")
         return model, scaler, columns
     except Exception as e:
         st.error(f"Error loading model files: {e}")
-        st.info("Please ensure the following files are in the same directory:")
-        st.info("- KNN_HeartPKL.pkl")
-        st.info("- scaler.pkl")
-        st.info("- columns.pkl")
         return None, None, None
 
 model, scaler, columns = load_artifacts()
