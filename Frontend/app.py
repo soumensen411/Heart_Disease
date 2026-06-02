@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -5,7 +6,6 @@ import joblib
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.preprocessing import StandardScaler
-import os
 
 # Page configuration
 st.set_page_config(
@@ -142,7 +142,6 @@ def load_artifacts():
         model = joblib.load(os.path.join(found_path, 'KNN_HeartPKL.pkl'))
         scaler = joblib.load(os.path.join(found_path, 'scaler.pkl'))
         columns = joblib.load(os.path.join(found_path, 'columns.pkl'))
-        st.success(f"✅ Model loaded successfully")
         return model, scaler, columns
     except Exception as e:
         st.error(f"Error loading model files: {e}")
@@ -152,7 +151,7 @@ model, scaler, columns = load_artifacts()
 
 # Sidebar navigation
 st.sidebar.title("❤️ Navigation")
-page = st.sidebar.radio("Select Page", ["🏠 Home", "🔮 Predict", "📊 Batch Prediction", "🇧🇩 বাংলাদেশ কনটেক্সট", "ℹ️ About"])
+page = st.sidebar.radio("Select Page", ["🏠 Home", "🔮 Predict", "📊 Batch Prediction"])
 
 # Home Page
 if page == "🏠 Home":
@@ -199,9 +198,7 @@ if page == "🏠 Home":
         </div>
     """, unsafe_allow_html=True)
 
-    if model is not None:
-        st.success("✅ Model loaded successfully! Ready for predictions.")
-    else:
+    if model is None:
         st.error("❌ Model files not found. Please check your PKL files.")
 
 # Predict Page
@@ -375,11 +372,9 @@ elif page == "📊 Batch Prediction":
                         healthy = len(predictions) - at_risk
                         st.metric("Healthy", int(healthy), delta=f"{healthy/len(predictions)*100:.1f}%")
 
-                    # Results table
                     st.subheader("📋 Detailed Results")
                     st.dataframe(results_df)
 
-                    # Visualization
                     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
 
                     # Pie chart
@@ -400,7 +395,6 @@ elif page == "📊 Batch Prediction":
                     plt.tight_layout()
                     st.pyplot(fig)
 
-                    # Download results
                     csv = results_df.to_csv(index=False)
                     st.download_button(
                         label="📥 Download Results as CSV",
@@ -412,193 +406,3 @@ elif page == "📊 Batch Prediction":
         except Exception as e:
             st.error(f"Error processing file: {e}")
             st.info("Please ensure your CSV has the correct column names and format.")
-
-# Bengali / Bangladesh Context Page
-elif page == "🇧🇩 বাংলাদেশ কনটেক্সট":
-    st.markdown('<div class="main-header">বাংলাদেশের প্রেক্ষাপটে হৃদরোগ ঝুঁকি</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-header">Heart Disease Risk in Bangladesh Context</div>', unsafe_allow_html=True)
-
-    st.markdown("""
-        <div class="info-box">
-            <h4 style="color: inherit;">⚠️ বাংলাদেশে হৃদরোগের প্রধান ঝুঁকি ফ্যাক্টর (Major Risk Factors in Bangladesh)</h4>
-        </div>
-    """, unsafe_allow_html=True)
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.markdown("""
-            ### 🍚 খাদ্যাভাস (Dietary Habits)
-            - **ভাত বেশি খাওয়া** → High carbohydrate intake
-            - **তেল-চর্বি যুক্ত খাবার** → Fried foods (পুরি, পরোটা, সমুচা)
-            - **নুন বেশি খাওয়া** → High salt intake (pickles, bharta)
-            - **সবজি-ফল কম খাওয়া** → Low fiber intake
-            - **গরুর মাংস বেশি, মাছ কম** → Red meat preference
-
-            ### 🚬 জীবনযাত্রা (Lifestyle)
-            - **ধূমপান** → Cigarette, bidi (বিড়ি)
-            - **নিষ্ক্রিয় জীবনযাত্রা** → Desk jobs, no exercise
-            - **মানসিক চাপ** → Traffic, work pressure, financial stress
-            - **ঘুমের অভাব** → Late nights, early mornings
-        """)
-
-    with col2:
-        st.markdown("""
-            ### 🏥 স্বাস্থ্য সমস্যা (Health Issues)
-            - **উচ্চ রক্তচাপ** → Very common (30%+ adults)
-            - **ডায়াবেটিস** → Type 2 diabetes epidemic
-            - **থাইরয়েড** → Increasingly common in women
-            - **মোটা হওয়া** → Central obesity (পেটের মেদ)
-            - **কিডনি সমস্যা** → Often linked with diabetes & BP
-
-            ### 🌍 পরিবেশগত (Environmental)
-            - **বায়ু দূষণ** → Dhaka/Chittagong air quality
-            - **আর্সেনিক পানি** → Groundwater contamination
-            - **তাপমাত্রা** → Extreme heat stress
-        """)
-
-    st.markdown("---")
-
-    st.subheader("📊 বাংলাদেশে হৃদরোগের সাধারণ মান (Typical Values in Bangladesh)")
-
-    st.markdown("""
-        | পরামিতি | স্বাভাবিক | ঝুঁকিপূর্ণ | বাংলাদেশে সাধারণ |
-        |---------|-----------|------------|-------------------|
-        | **বয়স** | <40 | >50 | রোগীরা 45-55 বছরেই আসে |
-        | **রক্তচাপ** | 120/80 | >140/90 | অনেকের 150-160/90-100 |
-        | **কলেস্টেরল** | <200 | >240 | 220-280 সাধারণ |
-        | **ব্লাড সুগার (ফাস্টিং)** | <100 | >126 | 110-180 প্রচলিত |
-        | **ওজন (BMI)** | 18.5-24.9 | >25 | পুরুষ: 26-30, মহিলা: 25-28 |
-        | **পেটের মেদ** | <90 cm (পুরুষ) | >100 cm | 95-110 cm প্রচলিত |
-        | **ধূমপান** | না | হ্যাঁ | ৪০%+ পুরুষ ধূমপায়ী |
-        | **শারীরিক পরিশ্রম** | 30 min/day | 0 min | অফিস-বাড়ি, গাড়িতেই যাতায়াত |
-    """)
-
-    st.markdown("---")
-
-    st.subheader("🎯 ঝুঁকি যাচাইকরণ (Quick Risk Checklist)")
-
-    risk_score = 0
-
-    with st.expander("✅ নিজেকে যাচাই করুন (Check Yourself)"):
-        q1 = st.checkbox("আপনার বয়স ৪৫ বছরের বেশি?")
-        q2 = st.checkbox("আপনার পরিবারে হৃদরোগের ইতিহাস আছে?")
-        q3 = st.checkbox("আপনি ধূমপান করেন বা আগে করতেন?")
-        q4 = st.checkbox("আপনার রক্তচাপ ১৪০/৯০-এর বেশি?")
-        q5 = st.checkbox("আপনার ডায়াবেটিস আছে?")
-        q6 = st.checkbox("আপনার কলেস্টেরল ২০০-এর বেশি?")
-        q7 = st.checkbox("আপনার পেটের মাপ ৩৬ ইঞ্চির বেশি?")
-        q8 = st.checkbox("আপনি নিয়মিত হাঁটেন/ব্যায়াম করেন না?")
-        q9 = st.checkbox("আপনি প্রতিদিন ১ চামচের বেশি নুন খান?")
-        q10 = st.checkbox("আপনার মানসিক চাপ বেশি?")
-
-        risk_score = sum([q1, q2, q3, q4, q5, q6, q7, q8, q9, q10])
-
-        st.markdown("---")
-
-        if risk_score == 0:
-            st.success("🟢 **খুব কম ঝুঁকি** — চমৎকার! এভাবেই থাকুন।")
-        elif risk_score <= 3:
-            st.info(f"🟡 **মাঝারি ঝুঁকি ({risk_score}/10)** — সতর্ক থাকুন, নিয়মিত চেকআপ করুন।")
-        elif risk_score <= 6:
-            st.warning(f"🟠 **উচ্চ ঝুঁকি ({risk_score}/10)** — চিকিৎসকের পরামর্শ নিন, জীবনযাত্রা পরিবর্তন করুন।")
-        else:
-            st.error(f"🔴 **অত্যন্ত উচ্চ ঝুঁকি ({risk_score}/10)** — দ্রুত চিকিৎসকের সাথে কথা বলুন!")
-
-    st.markdown("---")
-
-    st.subheader("💡 বাংলাদেশের জন্য পরামর্শ (Recommendations for Bangladesh)")
-
-    st.markdown("""
-        <div class="warning-box">
-
-        ### 🍽️ খাবারে পরিবর্তন
-        - **ভাত কমান** → প্রতি খাবারে ১ কাপের বেশি নয়
-        - **মাছ বাড়ান** → সপ্তাহে ৩-৪ দিন মাছ (ইলিশ, রুই, কাতল)
-        - **তেল কমান** → রান্নায় সরিষার তেল ব্যবহার করুন, পরিমাণ কমান
-        - **নুন কমান** → আচার, ভর্তা কম খান, টেবিলে নুন রাখবেন না
-        - **সবজি বাড়ান** → শাক-সবজি প্রতি খাবারে
-
-        ### 🏃‍♂️ শারীরিক পরিশ্রম
-        - **হাঁটুন** → প্রতিদিন কমপক্ষে ৩০ মিনিট (ফজরের নামাজের পর হাঁটা ভালো)
-        - **সিঁড়ি ব্যবহার করুন** → লিফট কম ব্যবহার করুন
-        - **সাইকেল** → কাছাকাছি যাতায়াতে সাইকেল
-        - **নামাজ** → ৫ ওয়াক্ত নামাজও শারীরিক পরিশ্রম
-
-        ### 🧠 মানসিক স্বাস্থ্য
-        - **ঘুম** → রাত ১১টার মধ্যে ঘুমাতে যান
-        - **ধ্যান/জিকির** → দিনে ১০ মিনিট শান্ত বসুন
-        - **পারিবারিক সময়** → পরিবারের সাথে সময় কাটান
-        - **মোবাইল কম** → সোশ্যাল মিডিয়া কম ব্যবহার করুন
-
-        ### 🏥 নিয়মিত চেকআপ
-        - **বছরে ১বার** → পূর্ণাঙ্গ স্বাস্থ্য পরীক্ষা
-        - **৩ মাসে ১বার** → রক্তচাপ ও ব্লাড সুগার
-        - **৬ মাসে ১বার** → লিপিড প্রোফাইল (কলেস্টেরল)
-        - **বিনামূল্যে** → সরকারি হাসপাতালে চেকআপ (নিয়মিত যান)
-
-        </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("---")
-
-    st.markdown("""
-        <div class="danger-box">
-            <h4 style="color: inherit;">🚨 জরুরী চিকিৎসা সেবা (Emergency Services)</h4>
-            <ul>
-                <li><b>জরুরী: 999</b> (ন্যাশনাল হেল্পলাইন)</li>
-            </ul>
-        </div>
-    """, unsafe_allow_html=True)
-
-# About Page
-elif page == "ℹ️ About":
-    st.markdown('<div class="main-header">About This Project</div>', unsafe_allow_html=True)
-
-    st.markdown("""
-        ### 🏥 Heart Disease Prediction System
-
-        This application uses a **K-Nearest Neighbors (KNN)** machine learning model trained on the 
-        [UCI Heart Disease dataset](https://www.kaggle.com/datasets/fedesoriano/heart-failure-prediction) 
-        to predict the likelihood of heart disease based on patient health parameters.
-
-        ### 🔧 Model Details
-        - **Algorithm**: K-Nearest Neighbors (KNN)
-        - **Features**: 11 clinical parameters including age, blood pressure, cholesterol, etc.
-        - **Preprocessing**: StandardScaler for feature normalization
-        - **Encoding**: One-hot encoding for categorical variables
-
-        ### 📊 Features Used
-        | Feature | Description |
-        |---------|-------------|
-        | Age | Patient age in years |
-        | Sex | Gender (M/F) |
-        | ChestPainType | Type of chest pain (ATA, NAP, ASY, TA) |
-        | RestingBP | Resting blood pressure (mm Hg) |
-        | Cholesterol | Serum cholesterol (mg/dl) |
-        | FastingBS | Fasting blood sugar > 120 mg/dl |
-        | RestingECG | Resting electrocardiogram results |
-        | MaxHR | Maximum heart rate achieved |
-        | ExerciseAngina | Exercise-induced angina (Y/N) |
-        | Oldpeak | ST depression induced by exercise |
-        | ST_Slope | Slope of the peak exercise ST segment |
-
-        ### ⚠️ Disclaimer
-        <div class="danger-box">
-            <b>Important:</b> This tool is for educational and screening purposes only. 
-            It is NOT a substitute for professional medical advice, diagnosis, or treatment. 
-            Always seek the advice of your physician or other qualified health provider with any 
-            questions you may have regarding a medical condition.
-        </div>
-
-        ### 👨‍💻 Technical Stack
-        - **Frontend**: Streamlit
-        - **Backend**: Python, Scikit-learn
-        - **Visualization**: Matplotlib, Seaborn
-        - **Model Format**: Joblib (PKL files)
-    """, unsafe_allow_html=True)
-
-    if model is not None:
-        st.success("✅ System Status: All components loaded successfully")
-    else:
-        st.error("❌ System Status: Model files missing")
