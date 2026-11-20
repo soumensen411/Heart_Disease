@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="how-it-works" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1088 464" width="1088" height="464" role="img" aria-labelledby="how-it-works-title how-it-works-desc">
+<title id="how-it-works-title">How the heart disease predictor works</title>
+<desc id="how-it-works-desc">A model is trained once from heart.csv and saved as one pipeline file; each prediction then runs patient data through the web app, preprocessing and a 5-neighbor KNN to produce a risk report.</desc>
+<defs>
+<pattern id="how-it-works-dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".8" fill="#1b1a19" fill-opacity=".10"/></pattern>
+<marker id="arrow" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0.5 L8,4 L0,7.5 z" fill="#5b5853"/></marker>
+<marker id="arrow-accent" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0.5 L8,4 L0,7.5 z" fill="#b4301f"/></marker>
+</defs>
+<rect width="1088" height="464" fill="#f4f3f1"/>
+<rect width="1088" height="464" fill="url(#how-it-works-dots)"/>
+<rect x="16" y="16" width="1056" height="156" rx="6" fill="#ecebe8" stroke="rgba(27,26,25,.22)" stroke-width="1"/>
+<rect x="16" y="212" width="1056" height="192" rx="6" fill="#ecebe8" stroke="rgba(27,26,25,.22)" stroke-width="1"/>
+<rect x="448" y="248" width="408" height="140" rx="6" fill="#f4f3f1" stroke="rgba(27,26,25,.22)" stroke-width="1"/>
+<text x="36" y="40" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="9" letter-spacing="1.1" fill="#5b5853">A · TRAIN ONCE, OFFLINE</text>
+<text x="36" y="236" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="9" letter-spacing="1.1" fill="#5b5853">B · EVERY PREDICTION, LIVE</text>
+<text x="464" y="268" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="9" letter-spacing="1.1" fill="#b4301f">SAVED PIPELINE</text>
+<path d="M192,100 H304" fill="none" stroke="#5b5853" stroke-width="1.25" marker-end="url(#arrow)"/>
+<path d="M464,100 H572" fill="none" stroke="#5b5853" stroke-width="1.25" marker-end="url(#arrow)"/>
+<path d="M652,144 V248" fill="none" stroke="#b4301f" stroke-width="1.25" stroke-dasharray="5,4" marker-end="url(#arrow-accent)"/>
+<path d="M192,328 H248" fill="none" stroke="#5b5853" stroke-width="1.25" marker-end="url(#arrow)"/>
+<path d="M408,328 H464" fill="none" stroke="#5b5853" stroke-width="1.25" marker-end="url(#arrow)"/>
+<path d="M624,328 H680" fill="none" stroke="#5b5853" stroke-width="1.25" marker-end="url(#arrow)"/>
+<path d="M840,328 H896" fill="none" stroke="#5b5853" stroke-width="1.25" marker-end="url(#arrow)"/>
+<rect x="228" y="76" width="41" height="16" rx="2" fill="#ecebe8"/>
+<text x="248.5" y="87.5" text-anchor="middle" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="9" letter-spacing=".8" fill="#5b5853">READS</text>
+<rect x="498" y="76" width="41" height="16" rx="2" fill="#ecebe8"/>
+<text x="518.5" y="87.5" text-anchor="middle" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="9" letter-spacing=".8" fill="#5b5853">SAVES</text>
+<rect x="660" y="185" width="76" height="16" rx="2" fill="#f4f3f1"/>
+<text x="698" y="196.5" text-anchor="middle" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="9" letter-spacing=".8" fill="#b4301f">LOADED ONCE</text>
+<rect x="32" y="56" width="160" height="88" rx="6" fill="#f4f3f1"/>
+<rect x="32" y="56" width="160" height="88" rx="6" fill="#ffffff" stroke="#76726c" stroke-width="1"/>
+<rect x="44" y="68" width="36" height="14" rx="2" fill="none" stroke="#5b5853" stroke-opacity=".6" stroke-width="1"/>
+<text x="62.0" y="78" text-anchor="middle" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="8" letter-spacing=".9" fill="#5b5853">DATA</text>
+<text x="44" y="102" font-family="'Geist','Instrument Sans','Inter',ui-sans-serif,system-ui,sans-serif" font-size="13.5" font-weight="600" fill="#1b1a19">heart.csv</text>
+<text x="44" y="118" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="10" fill="#5b5853">918 patients</text>
+<text x="44" y="132" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="10" fill="#5b5853">11 inputs + outcome</text>
+<rect x="304" y="56" width="160" height="88" rx="6" fill="#f4f3f1"/>
+<rect x="304" y="56" width="160" height="88" rx="6" fill="#ffffff" stroke="#1b1a19" stroke-width="1.25"/>
+<rect x="316" y="68" width="49" height="14" rx="2" fill="none" stroke="#5b5853" stroke-opacity=".6" stroke-width="1"/>
+<text x="340.5" y="78" text-anchor="middle" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="8" letter-spacing=".9" fill="#5b5853">SCRIPT</text>
+<text x="316" y="102" font-family="'Geist','Instrument Sans','Inter',ui-sans-serif,system-ui,sans-serif" font-size="13.5" font-weight="600" fill="#1b1a19">train.py</text>
+<text x="316" y="118" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="10" fill="#5b5853">5-fold CV for metrics</text>
+<text x="316" y="132" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="10" fill="#5b5853">then fit on all rows</text>
+<rect x="572" y="56" width="160" height="88" rx="6" fill="#f4f3f1"/>
+<rect x="572" y="56" width="160" height="88" rx="6" fill="#ffffff" stroke="#76726c" stroke-width="1"/>
+<rect x="584" y="68" width="36" height="14" rx="2" fill="none" stroke="#5b5853" stroke-opacity=".6" stroke-width="1"/>
+<text x="602.0" y="78" text-anchor="middle" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="8" letter-spacing=".9" fill="#5b5853">FILE</text>
+<text x="584" y="102" font-family="'Geist','Instrument Sans','Inter',ui-sans-serif,system-ui,sans-serif" font-size="13.5" font-weight="600" fill="#1b1a19">heart_model.pkl</text>
+<text x="584" y="118" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="10" fill="#5b5853">one saved Pipeline:</text>
+<text x="584" y="132" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="10" fill="#5b5853">prep + KNN together</text>
+<rect x="32" y="284" width="160" height="88" rx="6" fill="#f4f3f1"/>
+<rect x="32" y="284" width="160" height="88" rx="6" fill="rgba(27,26,25,.07)" stroke="#5b5853" stroke-width="1"/>
+<rect x="44" y="296" width="42" height="14" rx="2" fill="none" stroke="#5b5853" stroke-opacity=".6" stroke-width="1"/>
+<text x="65.0" y="306" text-anchor="middle" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="8" letter-spacing=".9" fill="#5b5853">INPUT</text>
+<text x="44" y="330" font-family="'Geist','Instrument Sans','Inter',ui-sans-serif,system-ui,sans-serif" font-size="13.5" font-weight="600" fill="#1b1a19">Patient data</text>
+<text x="44" y="346" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="10" fill="#5b5853">11 clinical values</text>
+<text x="44" y="360" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="10" fill="#5b5853">or a CSV upload</text>
+<rect x="248" y="284" width="160" height="88" rx="6" fill="#f4f3f1"/>
+<rect x="248" y="284" width="160" height="88" rx="6" fill="#ffffff" stroke="#1b1a19" stroke-width="1.25"/>
+<rect x="260" y="296" width="30" height="14" rx="2" fill="none" stroke="#5b5853" stroke-opacity=".6" stroke-width="1"/>
+<text x="275.0" y="306" text-anchor="middle" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="8" letter-spacing=".9" fill="#5b5853">APP</text>
+<text x="260" y="330" font-family="'Geist','Instrument Sans','Inter',ui-sans-serif,system-ui,sans-serif" font-size="13.5" font-weight="600" fill="#1b1a19">Web app</text>
+<text x="260" y="346" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="10" fill="#5b5853">server.py or app.py</text>
+<text x="260" y="360" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="10" fill="#5b5853">validates the input</text>
+<rect x="464" y="284" width="160" height="88" rx="6" fill="#f4f3f1"/>
+<rect x="464" y="284" width="160" height="88" rx="6" fill="#ffffff" stroke="#1b1a19" stroke-width="1.25"/>
+<rect x="476" y="296" width="36" height="14" rx="2" fill="none" stroke="#5b5853" stroke-opacity=".6" stroke-width="1"/>
+<text x="494.0" y="306" text-anchor="middle" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="8" letter-spacing=".9" fill="#5b5853">STEP</text>
+<text x="476" y="330" font-family="'Geist','Instrument Sans','Inter',ui-sans-serif,system-ui,sans-serif" font-size="13.5" font-weight="600" fill="#1b1a19">Preprocess</text>
+<text x="476" y="346" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="10" fill="#5b5853">fix zeros, fill gaps,</text>
+<text x="476" y="360" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="10" fill="#5b5853">scale, one-hot encode</text>
+<rect x="680" y="284" width="160" height="88" rx="6" fill="#f4f3f1"/>
+<rect x="680" y="284" width="160" height="88" rx="6" fill="rgba(180,48,31,.08)" stroke="#b4301f" stroke-width="1.5"/>
+<rect x="692" y="296" width="42" height="14" rx="2" fill="none" stroke="#b4301f" stroke-opacity=".6" stroke-width="1"/>
+<text x="713.0" y="306" text-anchor="middle" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="8" letter-spacing=".9" fill="#b4301f">MODEL</text>
+<text x="692" y="330" font-family="'Geist','Instrument Sans','Inter',ui-sans-serif,system-ui,sans-serif" font-size="13.5" font-weight="600" fill="#b4301f">KNN · k = 5</text>
+<text x="692" y="346" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="10" fill="#5b5853">5 closest patients</text>
+<text x="692" y="360" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="10" fill="#5b5853">vote on the outcome</text>
+<rect x="896" y="284" width="160" height="88" rx="6" fill="#f4f3f1"/>
+<rect x="896" y="284" width="160" height="88" rx="6" fill="rgba(27,26,25,.07)" stroke="#5b5853" stroke-width="1"/>
+<rect x="908" y="296" width="49" height="14" rx="2" fill="none" stroke="#5b5853" stroke-opacity=".6" stroke-width="1"/>
+<text x="932.5" y="306" text-anchor="middle" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="8" letter-spacing=".9" fill="#5b5853">OUTPUT</text>
+<text x="908" y="330" font-family="'Geist','Instrument Sans','Inter',ui-sans-serif,system-ui,sans-serif" font-size="13.5" font-weight="600" fill="#1b1a19">Risk report</text>
+<text x="908" y="346" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="10" fill="#5b5853">risk %, confidence,</text>
+<text x="908" y="360" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="10" fill="#5b5853">and the 5 neighbors</text>
+<line x1="16" y1="424" x2="1072" y2="424" stroke="rgba(27,26,25,.22)" stroke-width="1"/>
+<rect x="32" y="438" width="16" height="12" rx="2" fill="rgba(180,48,31,.08)" stroke="#b4301f" stroke-width="1.5"/>
+<text x="56" y="447.5" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="10" fill="#5b5853">Where the prediction is made</text>
+<rect x="252" y="438" width="16" height="12" rx="2" fill="#fff" stroke="#1b1a19" stroke-width="1.25"/>
+<text x="276" y="447.5" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="10" fill="#5b5853">Script or service</text>
+<rect x="406" y="438" width="16" height="12" rx="2" fill="#fff" stroke="#76726c" stroke-width="1"/>
+<text x="430" y="447.5" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="10" fill="#5b5853">File or data</text>
+<rect x="530" y="438" width="16" height="12" rx="2" fill="rgba(27,26,25,.07)" stroke="#5b5853" stroke-width="1"/>
+<text x="554" y="447.5" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="10" fill="#5b5853">What you enter or see</text>
+<line x1="708" y1="444" x2="732" y2="444" stroke="#b4301f" stroke-width="1.25" stroke-dasharray="5,4"/>
+<text x="740" y="447.5" font-family="'Geist Mono',ui-monospace,'DejaVu Sans Mono',Menlo,monospace" font-size="10" fill="#5b5853">Loaded once at startup</text>
+</svg>
