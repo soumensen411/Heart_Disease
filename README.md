@@ -1,4 +1,4 @@
-# ❤️ Heart Disease Prediction
+# Heart Disease Prediction
 
 A machine learning web application that estimates whether a patient is at risk of heart disease from 11 clinical measurements. It uses a **K-Nearest Neighbors (KNN)** classifier inside a single scikit-learn **Pipeline**, and ships with two interfaces: a custom **Flask web app** and a **Streamlit app**.
 
