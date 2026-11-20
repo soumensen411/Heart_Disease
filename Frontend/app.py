@@ -12,7 +12,7 @@ from heart_model import INPUT_COLUMNS
 # Page configuration
 st.set_page_config(
     page_title="Heart Disease Prediction",
-    page_icon="❤️",
+    page_icon="static/favicon.svg",
     layout="wide",
     initial_sidebar_state="expanded"
 )
