@@ -1,0 +1,10 @@
+{
+  "accuracy": 0.8572984749455338,
+  "f1": 0.8741594620557157,
+  "precision": 0.8536585365853658,
+  "recall": 0.8956692913385826,
+  "n_test": 918,
+  "cv_accuracy_mean": 0.8601983844143503,
+  "cv_accuracy_std": 0.02066831388503314,
+  "method": "5-fold cross-validated predictions"
+}

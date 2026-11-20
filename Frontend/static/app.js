@@ -134,7 +134,7 @@
     { k: 'ChestPainType', type: 'opts', label: 'Chest pain type', wide: true },
     { k: 'RestingECG', type: 'seg', label: 'Resting ECG', hint: 'ST: ST-T wave abnormality. LVH: left ventricular hypertrophy' },
     { k: 'ExerciseAngina', type: 'seg', label: 'Exercise-induced angina' },
-    { k: 'Oldpeak', type: 'num', label: 'Oldpeak (ST depression)', unit: 'mm', hint: 'The model was trained on whole numbers, so decimals are dropped' },
+    { k: 'Oldpeak', type: 'num', label: 'Oldpeak (ST depression)', unit: 'mm', hint: 'Decimals are used as entered' },
     { k: 'ST_Slope', type: 'seg', label: 'ST slope' }
   ];
 

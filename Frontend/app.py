@@ -5,7 +5,9 @@ import numpy as np
 import joblib
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.preprocessing import StandardScaler
+
+import heart_model  # noqa: F401  (needed so joblib can unpickle the pipeline)
+from heart_model import INPUT_COLUMNS
 
 # Page configuration
 st.set_page_config(
@@ -96,58 +98,23 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Load models and artifacts - checks multiple paths for deployment compatibility
+# Load the saved pipeline (cleaning + scaling + one-hot encoding + KNN in one object)
 @st.cache_resource
 def load_artifacts():
-    # List of possible paths to check (in order of priority)
-    possible_paths = [
-        '.',                                    # Current directory (local run)
-        os.path.dirname(os.path.abspath(__file__)),  # Script directory
-        '/app',                                 # Common Docker/Cloud path
-        '/mount/src',                           # Streamlit Cloud path
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'),  # Parent dir
-    ]
+    here = os.path.dirname(os.path.abspath(__file__))
+    for path in (here, '.', '/app', '/mount/src', os.path.join(here, '..')):
+        candidate = os.path.join(path, 'heart_model.pkl')
+        if os.path.exists(candidate):
+            try:
+                return joblib.load(candidate)
+            except Exception as e:
+                st.error(f"Error loading model file: {e}")
+                return None
+    st.error("❌ Model file not found! Expected heart_model.pkl next to app.py.")
+    st.info("Create it with:  python train.py")
+    return None
 
-    # Also check if files are in the same folder as the script
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    possible_paths.append(script_dir)
-
-    # Find the first path that contains all three files
-    found_path = None
-    for path in possible_paths:
-        if all(os.path.exists(os.path.join(path, f)) for f in ['KNN_HeartPKL.pkl', 'scaler.pkl', 'columns.pkl']):
-            found_path = path
-            break
-
-    # If not found, search recursively in script directory (up to 2 levels)
-    if found_path is None:
-        for root, dirs, files in os.walk(script_dir):
-            depth = root.replace(script_dir, '').count(os.sep)
-            if depth > 2:
-                continue
-            if all(f in files for f in ['KNN_HeartPKL.pkl', 'scaler.pkl', 'columns.pkl']):
-                found_path = root
-                break
-
-    if found_path is None:
-        st.error("❌ Model files not found!")
-        st.info("Searched in these locations:")
-        for path in possible_paths:
-            st.code(path)
-        st.info("Please ensure these files are in your project folder:")
-        st.code("KNN_HeartPKL.pkl, scaler.pkl, columns.pkl")
-        return None, None, None
-
-    try:
-        model = joblib.load(os.path.join(found_path, 'KNN_HeartPKL.pkl'))
-        scaler = joblib.load(os.path.join(found_path, 'scaler.pkl'))
-        columns = joblib.load(os.path.join(found_path, 'columns.pkl'))
-        return model, scaler, columns
-    except Exception as e:
-        st.error(f"Error loading model files: {e}")
-        return None, None, None
-
-model, scaler, columns = load_artifacts()
+model = load_artifacts()
 
 # Sidebar navigation
 st.sidebar.title("❤️ Navigation")
@@ -244,32 +211,15 @@ elif page == "🔮 Predict":
         'ST_Slope': st_slope
     }
 
-    input_df = pd.DataFrame([input_data])
-
-    # One-hot encoding to match training format
-    input_encoded = pd.get_dummies(input_df, drop_first=True)
-
-    # Ensure all columns from training are present
-    for col in columns:
-        if col not in input_encoded.columns:
-            input_encoded[col] = 0
-
-    # Reorder columns to match training
-    input_encoded = input_encoded[columns]
-
-    # Convert to int (as done in training)
-    input_encoded = input_encoded.astype(int)
+    input_df = pd.DataFrame([input_data])[INPUT_COLUMNS]
 
     st.markdown("---")
 
     if st.button("🔮 Predict Heart Disease Risk"):
         with st.spinner("Analyzing..."):
-            # Scale the input
-            input_scaled = scaler.transform(input_encoded)
-
-            # Make prediction
-            prediction = model.predict(input_scaled)[0]
-            prediction_proba = model.predict_proba(input_scaled)[0]
+            # The pipeline cleans, encodes and scales the raw row, then predicts
+            prediction = model.predict(input_df)[0]
+            prediction_proba = model.predict_proba(input_df)[0]
 
             # Display results
             st.markdown("---")
@@ -292,19 +242,20 @@ elif page == "🔮 Predict":
             st.progress(int(confidence))
             st.info(f"Model Confidence: **{confidence:.2f}%**")
 
-            # Feature importance visualization (using input values as proxy)
+            # What the KNN actually sees for this patient
             st.subheader("📊 Feature Analysis")
 
             fig, ax = plt.subplots(figsize=(10, 6))
-            feature_values = input_encoded.iloc[0].values
-            feature_names = input_encoded.columns
+            feature_values = model[:-1].transform(input_df)[0]
+            feature_names = model.named_steps['prep'].get_feature_names_out()
+            feature_names = [n.split('__', 1)[-1] for n in feature_names]
 
             colors = ['#e74c3c' if v > 0 else '#3498db' for v in feature_values]
             bars = ax.barh(range(len(feature_names)), feature_values, color=colors)
             ax.set_yticks(range(len(feature_names)))
             ax.set_yticklabels(feature_names, fontsize=10)
-            ax.set_xlabel('Value')
-            ax.set_title('Input Feature Values')
+            ax.set_xlabel('Value as seen by the model (numbers are standardised)')
+            ax.set_title('Model Input Features')
             plt.tight_layout()
             st.pyplot(fig)
 
@@ -335,22 +286,12 @@ elif page == "📊 Batch Prediction":
 
             if st.button("🔮 Run Batch Prediction"):
                 with st.spinner("Processing all records..."):
-                    # One-hot encoding
-                    batch_encoded = pd.get_dummies(batch_df, drop_first=True)
-
-                    # Ensure all columns from training are present
-                    for col in columns:
-                        if col not in batch_encoded.columns:
-                            batch_encoded[col] = 0
-
-                    # Reorder columns
-                    batch_encoded = batch_encoded[columns]
-                    batch_encoded = batch_encoded.astype(int)
-
-                    # Scale and predict
-                    batch_scaled = scaler.transform(batch_encoded)
-                    predictions = model.predict(batch_scaled)
-                    probabilities = model.predict_proba(batch_scaled)
+                    missing = [c for c in INPUT_COLUMNS if c not in batch_df.columns]
+                    if missing:
+                        raise ValueError(f"Missing columns: {', '.join(missing)}")
+                    batch_in = batch_df[INPUT_COLUMNS]
+                    predictions = model.predict(batch_in)
+                    probabilities = model.predict_proba(batch_in)
 
                     # Add results to dataframe
                     results_df = batch_df.copy()

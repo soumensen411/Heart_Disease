@@ -1,33 +1,33 @@
 """Heart Disease Prediction System: web server.
 
 Serves the HTML/CSS/JS interface in ./static and exposes a small JSON API.
-Every prediction is made here with the real model files, KNN_HeartPKL.pkl, scaler.pkl
-and columns.pkl, exactly as the Streamlit app loads them. Nothing about the model is
-copied into the browser.
+Every prediction is made here with the saved pipeline, heart_model.pkl (cleaning, scaling,
+one-hot encoding and the KNN in one object, built by heart_model.py and trained by train.py),
+exactly as the Streamlit app loads it. Nothing about the model is copied into the browser.
 
 Run:
     pip install -r requirements.txt
+    python train.py             # only needed to retrain; heart_model.pkl is included
     python server.py            # then open http://127.0.0.1:8000
 """
 import io
+import json
 import os
 
 import joblib
 import numpy as np
 import pandas as pd
 from flask import Flask, jsonify, request, send_from_directory
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+
+import heart_model  # noqa: F401  (needed so joblib can unpickle the pipeline)
+from heart_model import INPUT_COLUMNS
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ARTIFACTS = ['KNN_HeartPKL.pkl', 'scaler.pkl', 'columns.pkl']
+ARTIFACTS = ['heart_model.pkl']
 
 # ---------------------------------------------------------------------------
 # Input schema. Ranges and defaults are the ones the Streamlit form uses.
 # ---------------------------------------------------------------------------
-INPUT_COLUMNS = ['Age', 'Sex', 'ChestPainType', 'RestingBP', 'Cholesterol', 'FastingBS',
-                 'RestingECG', 'MaxHR', 'ExerciseAngina', 'Oldpeak', 'ST_Slope']
 CATEGORIES = {
     'Sex': ['M', 'F'],
     'ChestPainType': ['ATA', 'NAP', 'ASY', 'TA'],
@@ -66,36 +66,22 @@ art_dir = find_dir(ARTIFACTS)
 if art_dir is None:
     raise SystemExit('Model files not found. Put %s next to server.py.' % ', '.join(ARTIFACTS))
 
-model = joblib.load(os.path.join(art_dir, 'KNN_HeartPKL.pkl'))
-scaler = joblib.load(os.path.join(art_dir, 'scaler.pkl'))
-columns = joblib.load(os.path.join(art_dir, 'columns.pkl'))
+pipeline = joblib.load(os.path.join(art_dir, 'heart_model.pkl'))
+model = pipeline.named_steps['model']          # the KNN itself, used for neighbors
 CLASSES = list(model.classes_)
 POS = CLASSES.index(1)
 K = int(model.n_neighbors)
 
 
-def encode(df):
-    """One-hot encode against the training columns in columns.pkl, then cast to int.
-
-    Dummy columns are read from columns.pkl ('Sex_M' means Sex == 'M'), so every row is
-    encoded the same way no matter what else is in the batch. get_dummies(drop_first=True)
-    on a single row, or on a batch missing a category, drops the wrong levels.
-    """
-    out = pd.DataFrame(index=df.index)
-    for col in columns:
-        if col in df.columns:
-            out[col] = df[col]
-            continue
-        base, _, level = col.rpartition('_')
-        out[col] = (df[base].astype(str) == level).astype(int) if base in df.columns else 0
-    return out[columns].astype(float).astype(int)
-
-
 def run_model(df):
-    scaled = scaler.transform(encode(df))
-    proba = model.predict_proba(scaled)
-    pred = model.predict(scaled)
-    return scaled, pred, proba
+    """Raw patient rows in, (model-space matrix, predictions, probabilities) out.
+
+    The pipeline does the cleaning (0 BP / cholesterol = missing), scaling and one-hot
+    encoding, so a single row and a whole batch go through identical code.
+    """
+    df = df[INPUT_COLUMNS]
+    scaled = pipeline[:-1].transform(df)
+    return scaled, pipeline.predict(df), pipeline.predict_proba(df)
 
 
 # ---------------------------------------------------------------------------
@@ -124,28 +110,16 @@ def build_context():
         hist, _ = np.histogram(v, bins=24, range=(lo, hi))
         ctx.dist[key] = dict(lo=lo, hi=hi, bins=hist.tolist(), values=np.sort(v.values))
 
-    # Same preparation as Heart_Disease.ipynb: zeros replaced by the mean, one-hot, 80/20 split
-    df = raw.copy()
-    for col in ('Cholesterol', 'RestingBP'):
-        df[col] = df[col].replace(0, df.loc[df[col] != 0, col].mean()).round(2)
-    enc = pd.get_dummies(df, drop_first=True).astype(int)
-    X, y = enc.drop(columns='HeartDisease'), enc['HeartDisease']
-    if list(X.columns) != list(columns):
-        return ctx
-    xtr, xte, ytr, yte = train_test_split(X, y, test_size=0.2, random_state=42)
+    # Cross-validated metrics written by train.py
+    ctx.metrics = None
+    mpath = os.path.join(HERE, 'metrics.json')
+    if os.path.exists(mpath):
+        with open(mpath) as f:
+            ctx.metrics = json.load(f)
 
-    pred = model.predict(scaler.transform(xte))
-    ctx.metrics = dict(
-        accuracy=float(accuracy_score(yte, pred)), f1=float(f1_score(yte, pred)),
-        precision=float(precision_score(yte, pred)), recall=float(recall_score(yte, pred)),
-        n_test=len(xte))
-
-    # Neighbor profiles are only shown when the rebuilt training set is the one the model holds
-    fit_x = getattr(model, '_fit_X', None)
-    ctx.train_rows = None
-    if fit_x is not None and len(xtr) == len(fit_x) and \
-            np.allclose(StandardScaler().fit(xtr).transform(xtr), fit_x):
-        ctx.train_rows = df.loc[xtr.index].reset_index(drop=True)
+    # The model is fitted on every row of heart.csv in file order, so the index returned by
+    # kneighbors() is the row number there. Only trust it if the sizes agree.
+    ctx.train_rows = raw if len(raw) == int(model.n_samples_fit_) else None
     return ctx
 
 
