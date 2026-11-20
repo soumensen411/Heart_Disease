@@ -301,10 +301,8 @@ Python · pandas · NumPy · scikit-learn · Flask · Gunicorn · Streamlit · M
 | Build fails on very new Python versions | Set the Python version to 3.12 |
 | Live demo is slow on first load | The free server is waking up; wait a minute and retry |
 
-## License
-
-Add your preferred license here (for example MIT).
 
 ## Author
 
 **Soumen Sen**
+
